@@ -1,19 +1,66 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
 
-    <!-- You can also require other files to run in this process -->
-    <script src="./renderer.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <title>Hello World!</title>
+  <script src="./jquery.js"></script>
+</head>
+
+<body>
+  <div id="stuff"></div>
+  <div id="myfirstview">
+    <h1>My Dashboard</h1>
+    <p>This is the dashboard you see when you first open the app.</p>
+    <ul>
+      <li>List item one</li>
+      <li>List item two</li>
+      <li>List item three</li>
+    </ul>
+    <button id="showall">View All</button>
+  </div>
+  <div id="mysecondview">
+    <h1>This is a details screen</h1>
+    <p>You can view details here</p>
+    <table id="events">
+      <tbody>
+        <tr>
+          <th>Name</th>
+          <th>Venue</th>
+          <th>Details</th>
+        </tr>
+        <tr>
+          <td>A Cooler Party</td>
+          <td>A stadium</td>
+          <td>Come enjoy a party in a stadium</td>
+        </tr>
+        <tr>
+          <td>A Beach lime</td>
+          <td>A Beach</td>
+          <td>Come enjoy a lime at the beach</td>
+        </tr>
+        <tr>
+          <td>A trip to the zoo</td>
+          <td>The Zoo</td>
+          <td>Come enjoy a trip to the zoo</td>
+        </tr>
+        <tr>
+          <td>A Pool party</td>
+          <td>A pool</td>
+          <td>Come enjoy a party with a pool</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="mythirdview">
+    <input id="title" placeholder="Email" type="text" /><br>
+    <input id="text" placeholder="contact number" type="text" /><br>
+  </div>
+
+  <script src="./renderer.js"></script>
+</body>
+
 </html>
