@@ -5,10 +5,8 @@
 // selectively enable features needed in the rendering
 // process.
 
-document.fs.readdir("./notes/", populateExisting);
-
-$("#edit-page").hide();
 $("#browse").on("click", browseFiles);
+browseFiles();
 
 function browseFiles() {
   document.fs.readdir("./notes/", populateExisting);
@@ -19,15 +17,18 @@ function browseFiles() {
 
 $("#makenew").on("click", editNew);
 
-$("#delete").on("click", deleteNote);
+$("#delete").on("click", deleteNoteFromEdit);
 
-function deleteNote(e) {
+function deleteNoteFromEdit(e) {
   let filename = document.getElementById("filename").innerHTML;
-  let path = "./notes/" + filename;
-  console.log("deleting: " + path);
-  document.fs.unlinkSync(path);
+  deleteNote(filename);
   browseFiles();
   return false;
+}
+
+function deleteNote(filename) {
+  let path = "./notes/" + filename;
+  document.fs.unlinkSync(path);
 }
 
 // https://gist.github.com/kevinbull/f1cbc5440aa713bd5c9e
@@ -75,26 +76,53 @@ function writeFile() {
 $("#title").on("input", writeFile);
 $("#text").on("input", writeFile);
 
+function getSortedFiles(files) {
+  var out = [];
+  for (const s of files) {
+    let filedata = JSON.parse(document.fs.readFileSync("./notes/" + s));
+    out.push({ filename: s, data: filedata });
+  }
+  out.sort((a, b) => {
+    if (a.data.title < b.data.title) {
+      return -1;
+    } else if (a.data.title > b.data.title) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  return out;
+}
+
+function addFileLink(filename, title, data) {
+  let but = document.createElement("button");
+  but.innerHTML = title;
+  but.className = "edit-existing";
+  but.fileName = filename;
+  but.fileData = data;
+  but.onclick = editExisting;
+  document.getElementById("existing").appendChild(but);
+
+  let del = document.createElement("button");
+  del.innerHTML = "X";
+  del.className = "delete-existing";
+  del.fileName = filename;
+  del.onclick = () => {
+    deleteNote(filename);
+    browseFiles();
+  };
+  document.getElementById("existing").appendChild(del);
+
+  document.getElementById("existing").appendChild(document.createElement("br"));
+}
+
 function populateExisting(err, files) {
   let parent = document.getElementById("existing");
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
 
-  for (const s of files) {
-    let filedata = JSON.parse(document.fs.readFileSync("./notes/" + s));
-    console.log(filedata);
-
-    let but = document.createElement("button");
-    but.innerHTML = filedata.title;
-    but.className = "edit-existing";
-    but.fileName = s;
-    but.fileData = filedata;
-
-    but.onclick = editExisting;
-    document.getElementById("existing").appendChild(but);
-    document
-      .getElementById("existing")
-      .appendChild(document.createElement("br"));
+  for (const file of getSortedFiles(files)) {
+    addFileLink(file.filename, file.data.title, file.data);
   }
 }

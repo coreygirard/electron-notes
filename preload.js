@@ -11,5 +11,4 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-const fs = require("fs");
-document.fs = fs;
+document.fs = require("fs");
