@@ -12,3 +12,4 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 document.fs = require("fs");
+document.Automerge = require("automerge");

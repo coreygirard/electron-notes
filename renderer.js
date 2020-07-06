@@ -1,27 +1,168 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// No Node.js APIs are available in this process because
-// `nodeIntegration` is turned off. Use `preload.js` to
-// selectively enable features needed in the rendering
-// process.
-
-$("#browse").on("click", browseFiles);
-browseFiles();
-
-function browseFiles() {
-  document.fs.readdir("./notes/", populateExisting);
+function navBrowse() {
   $("#browse-page").show();
   $("#edit-page").hide();
+}
+
+function navEdit() {
+  $("#browse-page").hide();
+  $("#edit-page").show();
+}
+
+function editNew() {
+  document.current = {
+    filename: generateUnid(),
+    oldTitle: "",
+    oldText: "",
+    data: createNewCRDT()
+  };
+
+  CRDT2form(document.current);
+  navEdit();
   return false;
 }
 
-$("#makenew").on("click", editNew);
+function createNewCRDT() {
+  return document.Automerge.from({
+    title: new document.Automerge.Text(),
+    text: new document.Automerge.Text()
+  });
+}
 
+$("#title").on("input", handleTitleInput);
+$("#text").on("input", handleTextInput);
+
+function getTextDiff(type, a, b, sel) {
+  let lenDiff = b.length - a.length;
+  let out = [];
+  if (type.startsWith("insert")) {
+    for (var i = sel - lenDiff; i < sel; i++) {
+      out.push(["insert", i, b[i]]);
+    }
+  } else if (type.startsWith("delete")) {
+    for (var i = sel; i < sel - lenDiff; i++) {
+      out.push(["delete", sel, a[i]]); // 'sel' because deletions shorten the string
+    }
+  }
+  return out;
+}
+
+function handleTitleInput(e) {
+  const delta = getTextDiff(
+    e.originalEvent.inputType,
+    document.current.oldTitle,
+    document.getElementById("title").value,
+    e.target.selectionStart
+  );
+  for ([type, i, data] of delta) {
+    if (type === "insert") {
+      document.current.data = document.Automerge.change(
+        document.current.data,
+        doc => {
+          doc.title.insertAt(i, data);
+        }
+      );
+    } else if (type === "delete") {
+      document.current.data = document.Automerge.change(
+        document.current.data,
+        doc => {
+          doc.title.deleteAt(i);
+        }
+      );
+    } else {
+      console.log("ERROR");
+    }
+  }
+  document.current.oldTitle = document.getElementById("title").value;
+  writePlain();
+  writeCRDT();
+}
+
+function handleTextInput(e) {
+  const delta = getTextDiff(
+    e.originalEvent.inputType,
+    document.current.oldText,
+    document.getElementById("text").value,
+    e.target.selectionStart
+  );
+  for ([type, i, data] of delta) {
+    if (type === "insert") {
+      document.current.data = document.Automerge.change(
+        document.current.data,
+        doc => {
+          doc.text.insertAt(i, data);
+        }
+      );
+    } else if (type === "delete") {
+      document.current.data = document.Automerge.change(
+        document.current.data,
+        doc => {
+          doc.text.deleteAt(i);
+        }
+      );
+    } else {
+      console.log("ERROR");
+    }
+  }
+  document.current.oldText = document.getElementById("text").value;
+  writePlain();
+  writeCRDT();
+}
+
+function writePlain() {
+  var filename = "./notes/" + document.current.filename + ".json";
+  var filecontent = JSON.stringify({
+    title: document.current.data.title.toString(),
+    text: document.current.data.text.toString()
+  });
+
+  // write the filecontent to the selected file
+  document.fs.writeFile(filename, filecontent, function(err) {
+    if (err) {
+      //return console.log(err);
+    }
+    return true;
+  });
+  return false;
+}
+
+function writeCRDT() {
+  var filename = "./notes/" + document.current.filename + "_CRDT.json";
+  var filecontent = document.Automerge.save(document.current.data);
+
+  // write the filecontent to the selected file
+  document.fs.writeFile(filename, filecontent, function(err) {
+    if (err) {
+      //return console.log(err);
+    }
+    return true;
+  });
+  return false;
+}
+
+// ----------------------------------------------
+// ----------------------------------------------
+// ----------------------------------------------
+
+function CRDT2form(c) {
+  document.getElementById("filename").innerHTML = c.filename;
+  document.getElementById("title").value = c.data.title;
+  document.getElementById("text").value = c.data.text;
+}
+
+$("#browse").on("click", browseFiles);
+$("#makenew").on("click", editNew);
 $("#delete").on("click", deleteNoteFromEdit);
+browseFiles();
+editNew();
+
+function browseFiles() {
+  document.fs.readdir("./notes/", populateExisting);
+  navBrowse();
+  return false;
+}
 
 function deleteNoteFromEdit(e) {
-  let filename = document.getElementById("filename").innerHTML;
-  deleteNote(filename);
+  deleteNote(document.current.filename);
   browseFiles();
   return false;
 }
@@ -38,15 +179,6 @@ function generateUnid(a) {
     : ([1e10] + 1e10 + 1e9).replace(/[01]/g, generateUnid).toUpperCase();
 }
 
-function editNew() {
-  document.getElementById("filename").innerHTML = generateUnid() + ".json";
-  document.getElementById("title").value = "";
-  document.getElementById("text").value = "";
-  $("#browse-page").hide();
-  $("#edit-page").show();
-  return false;
-}
-
 function editExisting(e) {
   document.getElementById("filename").innerHTML = e.target.fileName;
   document.getElementById("title").value = e.target.fileData.title;
@@ -55,26 +187,6 @@ function editExisting(e) {
   $("#edit-page").show();
   return false;
 }
-
-function writeFile() {
-  var filename = "./notes/" + document.getElementById("filename").innerHTML;
-  var filecontent = JSON.stringify({
-    title: document.getElementById("title").value,
-    text: document.getElementById("text").value
-  });
-
-  // write the filecontent to the selected file
-  document.fs.writeFile(filename, filecontent, function(err) {
-    if (err) {
-      //return console.log(err);
-    }
-    return true;
-  });
-  return false;
-}
-
-$("#title").on("input", writeFile);
-$("#text").on("input", writeFile);
 
 function getSortedFiles(files) {
   var out = [];
