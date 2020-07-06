@@ -12,52 +12,16 @@
 
 <body>
   <div id="stuff"></div>
-  <div id="myfirstview">
-    <h1>My Dashboard</h1>
-    <p>This is the dashboard you see when you first open the app.</p>
-    <ul>
-      <li>List item one</li>
-      <li>List item two</li>
-      <li>List item three</li>
-    </ul>
-    <button id="showall">View All</button>
+  <div id="browse-page">
+    <button id="makenew">+</button><br><br>
+    <div id="existing"></div>
   </div>
-  <div id="mysecondview">
-    <h1>This is a details screen</h1>
-    <p>You can view details here</p>
-    <table id="events">
-      <tbody>
-        <tr>
-          <th>Name</th>
-          <th>Venue</th>
-          <th>Details</th>
-        </tr>
-        <tr>
-          <td>A Cooler Party</td>
-          <td>A stadium</td>
-          <td>Come enjoy a party in a stadium</td>
-        </tr>
-        <tr>
-          <td>A Beach lime</td>
-          <td>A Beach</td>
-          <td>Come enjoy a lime at the beach</td>
-        </tr>
-        <tr>
-          <td>A trip to the zoo</td>
-          <td>The Zoo</td>
-          <td>Come enjoy a trip to the zoo</td>
-        </tr>
-        <tr>
-          <td>A Pool party</td>
-          <td>A pool</td>
-          <td>Come enjoy a party with a pool</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div id="mythirdview">
-    <input id="title" placeholder="Email" type="text" /><br>
-    <input id="text" placeholder="contact number" type="text" /><br>
+  <div id="edit-page">
+    <button id="browse">Browse</button><br>
+    <span>Filename (internal): </span><span id="filename"></span><br>
+    <button id="delete">Delete this note</button><br>
+    <input id="title" placeholder="title" type="text" /><br>
+    <input id="text" placeholder="text" type="text" /><br>
   </div>
 
   <script src="./renderer.js"></script>
