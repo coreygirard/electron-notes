@@ -1,5 +1,12 @@
 # electron-quick-start
 
+## Running
+
+```
+npm install
+npm start
+```
+
 https://app.wftutorials.com/Getting-started-with-Electron-creating-cross-platform-desktop-app
 
 **Clone and run for a quick way to see Electron in action.**
