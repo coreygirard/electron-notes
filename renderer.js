@@ -191,7 +191,9 @@ function editExisting(e) {
 function getSortedFiles(files) {
   var out = [];
   for (const s of files) {
-    let filedata = JSON.parse(document.fs.readFileSync("./notes/" + s));
+    let filedata = document.Automerge.load(
+      document.fs.readFileSync("./notes/" + s)
+    );
     out.push({ filename: s, data: filedata });
   }
   out.sort((a, b) => {
@@ -233,6 +235,10 @@ function populateExisting(err, files) {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
+
+  files = files.filter(s => {
+    return s.endsWith("_CRDT.json");
+  });
 
   for (const file of getSortedFiles(files)) {
     addFileLink(file.filename, file.data.title, file.data);
